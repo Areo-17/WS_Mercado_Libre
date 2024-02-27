@@ -336,3 +336,7 @@ Now, the docker is up!
 Open Postman, click on the Workspace button that is on the left top of the window, create a workspace, select the POST mode on the created workspace, put the http link that docker gave you, in this case is `http://127.0.0.1:6000`, and add `/Scrapping`; the example look like this `http://127.0.0.1:6000/Scrapping`. After this, click in the *"Body"* button.
 
 ![Captura de pantalla (3452)](https://github.com/Areo-17/WS_MercadoLibre/assets/144394013/e37bea00-b8af-4eb8-9b47-bc5017838a3e)
+
+----COLLABORATORS----
+
+**ElCursed** - **IvanEsau** - **monroyminerodiego** - **carcin0gen**
