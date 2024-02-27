@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  flask-app:
+    build: .
+    ports:
+      - "6000:6000"
+    volumes:
+      - .:/WS_app
+    environment:
+      - FLASK_APP=WS_app.py
