@@ -19,7 +19,7 @@ def exe_scrappeo():
     )
     dictionary = test.get_all_attributes()
     name = dictionary["name"]
-    price = dictionary["price"]
+    price = dictionary["prices"]
     images = dictionary["images"]
     description = dictionary["description"]
     return render_template('scrapped_page.html',name=name,price=price,images=images,description=description,)
