@@ -150,6 +150,7 @@ class Scrapper:
         ### Returns:
         * dict: A dictionary containing product details like name, prices, descriptions, and images.
         '''
+        if not(hasattr(self,'soup')): self.load_all_attributes()
         all_def = {
             "name": self.names,
             "prices": self.prices,
