@@ -11,28 +11,28 @@ class Scrapper:
         Initializes a new instance of the Scrapper class.
 
         ### Args:
-        * URL (str): The URL of the page to scrape.
-        * verbose (bool, optional): Flag to enable verbose output. Defaults to False.
-        * daemon (bool, optional): Flag to determine if the class is instanced as a daemon. Defaults to False.
+        * `URL` (str): The URL of the page to scrape.
+        * `verbose` (bool, optional): Flag to enable verbose output. Defaults to False.
+        * `daemon` (bool, optional): Flag to determine if the class is instanced as a daemon. Defaults to False.
 
         ### Attributes:
-        * URL (str): Stores the URL of the page to scrape.
-        * verbose (bool): Stores the verbose flag status.
-        * daemon (bool): Stores the daemon flag status.
-        * soup (BeautifulSoup | None): The parsed HTML of the page, initialized by `__load_soup`.
-        * names (str | None): Product names, initialized by `__load_names`.
-        * prices (str | None): Product prices, initialized by `__load_prices`.
-        * descriptions (str | None): Product descriptions, initialized by `__load_descriptions`.
-        * images (list | None): Product images, initialized by `__load_images`.
+        * `URL` (str): Stores the URL of the page to scrape.
+        * `verbose` (bool): Stores the verbose flag status.
+        * `daemon` (bool): Stores the daemon flag status.
+        * `soup` (BeautifulSoup | None): The parsed HTML of the page, initialized by `__load_soup`.
+        * `names` (str | None): Product names, initialized by `__load_names`.
+        * `prices` (str | None): Product prices, initialized by `__load_prices`.
+        * `descriptions` (str | None): Product descriptions, initialized by `__load_descriptions`.
+        * `images` (list | None): Product images, initialized by `__load_images`.
 
         ### Methods:
-        * __load_soup: Loads the HTML of the page into `soup`.
-        * __load_names: Extracts product names and stores them in `names`.
-        * __load_prices: Extracts product prices and stores them in `prices`.
-        * __load_descriptions: Extracts product descriptions and stores them in `descriptions`.
-        * __load_images: Extracts product images and stores them in `images`.
-        * load_all_attributes: Calls private methods to load all attributes.
-        * get_all_attributes: Returns a dictionary containing all product details.
+        * `__load_soup`: Loads the HTML of the page into `soup`.
+        * `__load_names`: Extracts product names and stores them in `names`.
+        * `__load_prices`: Extracts product prices and stores them in `prices`.
+        * `__load_descriptions`: Extracts product descriptions and stores them in `descriptions`.
+        * `__load_images`: Extracts product images and stores them in `images`.
+        * `load_all_attributes`: Calls private methods to load all attributes.
+        * `get_all_attributes`: Returns a dictionary containing all product details.
 
         ### Notes:
         * If the class is instanced with the `daemon` flag set to True, it automatically loads all attributes.
@@ -53,7 +53,7 @@ class Scrapper:
         Method used to print messages in console depending on `verbose` flag.
 
         ### Args:
-        * message (str): The message to be printed in console
+        * `message` (str): The message to be printed in console
         '''
         if self.verbose: print(message)
     
@@ -148,7 +148,7 @@ class Scrapper:
         Retrieves all the main attributes of the product.
 
         ### Returns:
-        * dict: A dictionary containing product details like name, prices, descriptions, and images.
+        * `dict`: A dictionary containing product details like name, prices, descriptions, and images.
         '''
         if not(hasattr(self,'soup')): self.load_all_attributes()
         all_def = {
