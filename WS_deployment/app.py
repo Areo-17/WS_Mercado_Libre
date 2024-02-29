@@ -18,7 +18,7 @@ def exe_scrappeo():
         verbose = True,
         daemon  = True,
     )
-    dictionary = test.all_attributes()
+    dictionary = test.load_all_attributes()
     name = dictionary["name"]
     price = dictionary["price"]
     images = dictionary["images"]
