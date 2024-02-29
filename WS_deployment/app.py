@@ -21,7 +21,7 @@ def exe_scrappeo():
     name = dictionary["name"]
     price = dictionary["prices"]
     images = dictionary["images"]
-    description = dictionary["description"]
+    description = dictionary["descriptions"]
     return render_template('scrapped_page.html',name=name,price=price,images=images,description=description,)
 
 if __name__ == '__main__':
