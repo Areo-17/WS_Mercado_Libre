@@ -45,7 +45,7 @@ class Scrapper:
 
         # If class instanced as a daemon, loads soup automatically
         if self.daemon:
-            self.load_all_attributes()
+            self.__load_all_attributes()
         
     # =============== PRIVATE METHODS ===============
     def __inform(self,message:str):
@@ -128,21 +128,19 @@ class Scrapper:
             img = im.get('data-zoom')
             self.images.append(img)
 
-    # =============== PUBLIC METHODS ===============        
-    def load_all_attributes(self):
+    def __load_all_attributes(self):
         '''
         Loads all the attributes of the class by calling private methods.
 
         This method checks if each attribute (soup, names, prices, descriptions, images) is already loaded. If not, it calls the corresponding method to load it.
         '''
-        execution_time = time.time()
         if not(hasattr(self,'soup')): self.__load_soup()
         if not(hasattr(self,'names')): self.__load_names()
         if not(hasattr(self,'prices')): self.__load_prices()
         if not(hasattr(self,'descriptions')): self.__load_descriptions()
         if not(hasattr(self,'images')): self.__load_images()
-        self.__inform(f"Execution time for generating all attributes: {time.time() - execution_time:.2f} seconds")
         
+    # =============== PUBLIC METHODS ===============        
     def get_all_attributes(self):
         '''
         Retrieves all the main attributes of the product.
@@ -150,13 +148,15 @@ class Scrapper:
         ### Returns:
         * `dict`: A dictionary containing product details like name, prices, descriptions, and images.
         '''
-        if not(hasattr(self,'soup')): self.load_all_attributes()
+        execution_time = time.time()
+        if not(hasattr(self,'soup')): self.__load_all_attributes()
         all_def = {
             "name": self.names,
             "prices": self.prices,
             "descriptions": self.descriptions,
             "images": self.images
         }
+        self.__inform(f"Execution time for generating all attributes: {time.time() - execution_time:.2f} seconds")
         return all_def
     
 # =============== DEBUGGING ===============
