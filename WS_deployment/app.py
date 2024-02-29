@@ -22,7 +22,7 @@ def exe_scrappeo():
     price = dictionary["prices"]
     images = dictionary["images"]
     description = dictionary["descriptions"]
-    return render_template('scrapped_page.html',name=name,price=price,images=images,description=description,)
+    return render_template('scrapped_page.html',name=name,price=price,images=images,description=description)
 
 if __name__ == '__main__':
     print("STARTING THE SERVER...")
