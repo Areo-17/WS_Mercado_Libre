@@ -12,18 +12,16 @@ def welcome():
 
 @app.route('/Scrapping', methods=['POST'])
 def exe_scrappeo():
-
     test = Scrapper(
         URL     = request.form['url'],
         verbose = True,
         daemon  = True,
     )
-    dictionary = test.load_all_attributes()
+    dictionary = test.get_all_attributes()
     name = dictionary["name"]
     price = dictionary["price"]
     images = dictionary["images"]
     description = dictionary["description"]
-    
     return render_template('scrapped_page.html',name=name,price=price,images=images,description=description,)
 
 if __name__ == '__main__':
