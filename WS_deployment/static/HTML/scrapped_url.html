@@ -1,0 +1,27 @@
+{% extends "template.html" %}
+
+
+
+
+{% block subtitulo %}
+    <h2 style="text-align: center;font-weight: bold;">Data from an Item</h2>
+    <br>
+{% endblock %}
+
+
+
+
+{% block body %}
+    <p style="text-align: center;font-weight: bold;"> The name of the item is: </p>
+        <p>{{ name }} </p>
+
+    <p style="text-align: center;font-weight: bold;"> The price of the item is: </p>
+        <p>{{ price }} </p>
+
+    <p style="text-align: center;font-weight: bold;"> The description of the item is: </p>
+        <p>{{ description }} </p>
+
+    {% for image in images %}
+        <img src="{{ image }}" alt="watata" height="150" width="150">
+    {% endfor %}
+{% endblock %}

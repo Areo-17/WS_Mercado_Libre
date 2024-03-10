@@ -1,12 +1,11 @@
 from bs4 import BeautifulSoup
 import requests
-import json
 import time
 
-class Scrapper:
+class main:
     
     # =============== CONSTRUCTOR ===============
-    def __init__(self,URL:str,verbose:bool = False, daemon:bool = False):
+    def __init__(self,URL:str = None,verbose:bool = False, daemon:bool = False):
         '''
         Initializes a new instance of the Scrapper class.
 
@@ -44,7 +43,7 @@ class Scrapper:
         self.__inform("Class initialized correctly...")
 
         # If class instanced as a daemon, loads soup automatically
-        if self.daemon:
+        if self.daemon and URL:
             self.__load_all_attributes()
         
     # =============== PRIVATE METHODS ===============
@@ -82,8 +81,7 @@ class Scrapper:
         This method searches for the product name in the parsed HTML and sets the `names` attribute of the class.
         If the product name is not found, it sets a default message.
         '''
-        attributes1 = self.soup.find('div', class_= 'ui-pdp-container__col col-2 mr-32')
-        nm = attributes1.find('h1', class_ = 'ui-pdp-title')
+        nm = self.soup.find('h1', class_ = 'ui-pdp-title')
         if nm:
             self.names = nm.get_text()
         else:
@@ -96,8 +94,7 @@ class Scrapper:
         This method searches for the product price in the parsed HTML and sets the `prices` attribute of the class.
         If the product price is not found, it sets a default message.
         '''
-        attributes2 = self.soup.find('div', class_= 'ui-pdp-container__col col-2 mr-32')
-        pr = attributes2.find('span', class_ = 'andes-money-amount__fraction')
+        pr = self.soup.find('span', class_ = 'andes-money-amount__fraction')
         if pr:
             self.prices = pr.get_text()
         else:
@@ -134,13 +131,21 @@ class Scrapper:
 
         This method checks if each attribute (soup, names, prices, descriptions, images) is already loaded. If not, it calls the corresponding method to load it.
         '''
-        if not(hasattr(self,'soup')): self.__load_soup()
-        if not(hasattr(self,'names')): self.__load_names()
-        if not(hasattr(self,'prices')): self.__load_prices()
-        if not(hasattr(self,'descriptions')): self.__load_descriptions()
-        if not(hasattr(self,'images')): self.__load_images()
+        execution_time = time.time()
+        self.__load_soup()
+        self.__load_names()
+        self.__load_prices()
+        self.__load_descriptions()
+        self.__load_images()
+        self.__inform(f"Execution time for generating all attributes: {time.time() - execution_time:.2f} seconds")
         
     # =============== PUBLIC METHODS ===============        
+    def update_data(self,URL:str):
+        '''
+        '''
+        self.URL = URL
+        self.__load_all_attributes()
+
     def get_all_attributes(self):
         '''
         Retrieves all the main attributes of the product.
@@ -148,23 +153,20 @@ class Scrapper:
         ### Returns:
         * `dict`: A dictionary containing product details like name, prices, descriptions, and images.
         '''
-        execution_time = time.time()
-        if not(hasattr(self,'soup')): self.__load_all_attributes()
-        all_def = {
+        self.__load_all_attributes()
+        return {
             "name": self.names,
-            "prices": self.prices,
-            "descriptions": self.descriptions,
+            "price": self.prices,
+            "description": self.descriptions,
             "images": self.images
         }
-        self.__inform(f"Execution time for generating all attributes: {time.time() - execution_time:.2f} seconds")
-        return all_def
     
 # =============== DEBUGGING ===============
 if __name__ == '__main__':
 
     link = 'https://www.mercadolibre.com.mx/laptop-lenovo-ideapad-156-ryzen-3-7320u-8gb-256gb-ssd/p/MLM21816271?pdp_filters=category:MLM1652#searchVariation=MLM21816271&position=3&search_layout=stack&type=product&tracking_id=dd9d1c17-227c-4f8d-87e6-09b3c7969cad'
     
-    test = Scrapper(
+    test = main(
         URL     = link,
         verbose = True,
         daemon  = True,

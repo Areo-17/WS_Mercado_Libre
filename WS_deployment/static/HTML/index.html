@@ -1,13 +1,36 @@
 {% extends "template.html" %}
 
 {% block subtitulo %}
-<h3>Enter the URL to review</h3>
+<h2 style="text-align: center;">Welcome to the Bachicho Scrapper...!!! :D</h2>
+<h3 style="text-align: center;">The scrapper made by bachichos...</h3>
+<br>
+<br>
 {% endblock %}
 
 {% block body %}
-<form action="/Scrapping" method="post">
-    <!-- <label for="url">Enter URL:</label> -->
-    <input type="text" id="url" name="url">
-    <button type="submit">Process URL</button>
-</form>
+<p style="text-align: center;">Please, insert a word or a URL to begin the scrapping</p>
+<div class="contenedor">
+    <form action="/ScrappingWord" method="post">
+        <input type="text" id="word" name="word" placeholder="Word(s)">
+        <button type="submit">Process Word(s)</button>
+    </form>
+</div>
+    <br>
+
+<div class="contenedor">
+    <form action="/ScrappingURL" method="post">
+        <input type="text" id="url" name="url" placeholder="URL">
+        <button type="submit">Process URL</button>
+    </form>
+</div>
+
+<br>
+<br>
+<h2>Notes:</h2>
+    <li>If you process by Word, it will do the full process of scrapping, meaning that it will gather all the information of all the products related to that word.</li>
+    <li>To process multiple words, write them in CSV format (Comma Separated Values).</li>
+    <li>If the word(s) field is leave empty, it will generate 15 random words.</li>
+    <br>
+    <li>If you process by URL, it will only do the process for the specific URL.</li>
+    <li>Processing by URL does not supports multiple values.</li>
 {% endblock %}
