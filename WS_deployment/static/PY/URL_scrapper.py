@@ -25,11 +25,6 @@ class main:
         * `images` (list | None): Product images, initialized by `__load_images`.
 
         ### Methods:
-        * `__load_soup`: Loads the HTML of the page into `soup`.
-        * `__load_names`: Extracts product names and stores them in `names`.
-        * `__load_prices`: Extracts product prices and stores them in `prices`.
-        * `__load_descriptions`: Extracts product descriptions and stores them in `descriptions`.
-        * `__load_images`: Extracts product images and stores them in `images`.
         * `load_all_attributes`: Calls private methods to load all attributes.
         * `get_all_attributes`: Returns a dictionary containing all product details.
 
@@ -81,10 +76,13 @@ class main:
         This method searches for the product name in the parsed HTML and sets the `names` attribute of the class.
         If the product name is not found, it sets a default message.
         '''
-        nm = self.soup.find('h1', class_ = 'ui-pdp-title')
-        if nm:
-            self.names = nm.get_text()
-        else:
+        try:
+            nm = self.soup.find('h1', class_ = 'ui-pdp-title')
+            if nm:
+                self.names = nm.get_text()
+            else:
+                self.names = 'The product name was not found.'
+        except:
             self.names = 'The product name was not found.'
     
     def __load_prices(self):
@@ -94,10 +92,13 @@ class main:
         This method searches for the product price in the parsed HTML and sets the `prices` attribute of the class.
         If the product price is not found, it sets a default message.
         '''
-        pr = self.soup.find('span', class_ = 'andes-money-amount__fraction')
-        if pr:
-            self.prices = pr.get_text()
-        else:
+        try:
+            pr = self.soup.find('span', class_ = 'andes-money-amount__fraction')
+            if pr:
+                self.prices = pr.get_text()
+            else:
+                self.prices = 'The product price was not found.'
+        except:
             self.prices = 'The product price was not found.'
 
     def __load_descriptions(self):
@@ -107,10 +108,13 @@ class main:
         This method searches for the product description in the parsed HTML and sets the `descriptions` attribute of the class.
         If the product description is not found, it sets a default message.
         '''
-        attributes3 = self.soup.find('p', class_= 'ui-pdp-description__content')
-        if attributes3:
-            self.descriptions = attributes3.get_text()
-        else:
+        try:
+            attributes3 = self.soup.find('p', class_= 'ui-pdp-description__content')
+            if attributes3:
+                self.descriptions = attributes3.get_text()
+            else:
+                self.descriptions = 'The product description was not found.'
+        except:
             self.descriptions = 'The product description was not found.'
 
     def __load_images(self):
@@ -119,11 +123,14 @@ class main:
 
         This method searches for image tags in the parsed HTML and stores the image URLs in the `images` attribute of the class.
         '''
-        img_tags = self.soup.select('div[class*="ui-pdp-gallery"] span[class*="ui-pdp-gallery"] figure[class*="ui-pdp-gallery"] img')
-        self.images = []
-        for im in img_tags:
-            img = im.get('data-zoom')
-            self.images.append(img)
+        try:
+            self.images = []
+            img_tags = self.soup.select('div[class*="ui-pdp-gallery"] span[class*="ui-pdp-gallery"] figure[class*="ui-pdp-gallery"] img')
+            for im in img_tags:
+                img = im.get('data-zoom')
+                self.images.append(img)
+        except:
+            self.images = []
 
     def __load_all_attributes(self):
         '''
@@ -142,23 +149,31 @@ class main:
     # =============== PUBLIC METHODS ===============        
     def update_data(self,URL:str):
         '''
+        Updates the internal URL and reloads all product attributes.
+
+        ### Args:
+        * `URL` (str): The new URL to be used for scraping product information.
         '''
+        self.last_URL = self.URL
         self.URL = URL
+        self.__inform(f"URL updated...")
         self.__load_all_attributes()
 
     def get_all_attributes(self):
         '''
-        Retrieves all the main attributes of the product.
+        Returns a dictionary containing all scraped product attributes.
 
         ### Returns:
-        * `dict`: A dictionary containing product details like name, prices, descriptions, and images.
+        * `dict`: A dictionary containing all scraped product attributes.
         '''
-        self.__load_all_attributes()
+        if (not(hasattr(self,'last_URL'))) or (self.last_URL != self.URL):
+            self.update_data(self.URL)
         return {
             "name": self.names,
             "price": self.prices,
             "description": self.descriptions,
-            "images": self.images
+            "images": self.images,
+            "url" : self.URL,
         }
     
 # =============== DEBUGGING ===============

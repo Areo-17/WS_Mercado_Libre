@@ -1,0 +1,27 @@
+CREATE SCHEMA IF NOT EXISTS scrapper;
+
+USE scrapper;
+
+CREATE TABLE IF NOT EXISTS words(
+    Word_searched VARCHAR(255) NOT NULL,
+    Categories VARCHAR(255) NULL,
+    TS_Creation TIMESTAMP NULL,
+    TS_Update TIMESTAMP NULL,
+    PRIMARY KEY (Word_searched));
+
+CREATE TABLE IF NOT EXISTS word_url(
+    ID_URL VARCHAR(255) NOT NULL,
+    Link VARCHAR(255) NULL,
+    Word_searched VARCHAR(255) NOT NULL,
+    TS_Creation TIMESTAMP NULL,
+    TS_Update TIMESTAMP NULL,
+    PRIMARY KEY (ID_URL));
+
+CREATE TABLE IF NOT EXISTS urls(
+    ID_URL VARCHAR(255) NOT NULL,
+    Price DECIMAL(11) NULL,
+    Title VARCHAR(255) NULL,
+    About VARCHAR(255) NULL,
+    Images VARCHAR(255) NULL,
+    TS_Creation TIMESTAMP NULL,
+    TS_Update TIMESTAMP NULL);

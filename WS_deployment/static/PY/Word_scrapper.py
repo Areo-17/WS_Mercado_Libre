@@ -4,13 +4,11 @@ import time
 import requests
 import asyncio
 import threading
-import multiprocessing
-import aiohttp
 from bs4 import BeautifulSoup
 
 class main:
     # =============== CONSTRUCTOR ===============
-    def __init__(self,words_list:list[str],verbose:bool = False,daemon:bool = False):
+    def __init__(self,words_list:list[str] = None,verbose:bool = False,daemon:bool = False):
         '''
         '''
         # Defining the variables
@@ -20,8 +18,8 @@ class main:
         self.__inform("Class initialized correctly...")
 
         # If class instanced as a daemon, loads soup automatically
-        if self.daemon:
-            self.__load_words_into_URLs()
+        if self.daemon and words_list:
+            self.get_words_into_URLs()
 
 
     # =============== PRIVATE METHODS ===============
@@ -34,57 +32,73 @@ class main:
         '''
         if self.verbose: print(message)
   
-    async def __fetch_data(self,index:int,word:str,url:str,words_urls:dict):
-        '''
-        '''
+    async def __fetch_data(self, index: int, word: str, url: str, words_urls: dict):
+        """
+        Fetches data for a given word and URL.
+
+        ### Args:
+        * `index` (int): Index of the word in the list.
+        * `word` (str): The word to search for.
+        * `url` (str): The URL to fetch data from.
+        * `words_urls` (dict): Dictionary to store word information.
+
+        ### Returns:
+        * None
+        """
+
         counter = 0
         while counter < 3:
             try:
-                response = requests.get(url)
+                with requests.get(url) as response:
+                    if response.status_code == 200:
+                        data = self.__load_items_page(response.text)
+                        words_urls[word] = {
+                            'word': word,
+                            'stage': f"Codigo de respuesta: {response.status_code}",
+                            'link': url,
+                            'items_found': data['items'],
+                            'links_found': data['links'],
+                        }
+                        self.__inform(f"({index}) {url} .- Codigo {response.status_code}")
+                        return
 
-                if response.status_code in [200]:
-                    data = self.__load_items_page(response.text)
-                    words_urls[word] = {
-                        'word'  : word,
-                        'stage' : f"Codigo de respuesta: {response.status_code}",
-                        'link'  : url,
-                        'items_found' : data['items'],
-                        'links_found' : data['links'],
-                    }
-                    self.__inform(f"({index}) {url} .- Codigo {response.status_code}")
-                    return
-                
-                elif response.status_code in [404]:
-                    words_urls[word] = {
-                        'word' : word,
-                        'stage' : f"Codigo de respuesta: {response.status_code}",
-                        'link' : url,
-                    }
-                    self.__inform(f"({index}) {url} .- Codigo {response.status_code}")
-                    return
-            
+                    elif response.status_code == 404:
+                        words_urls[word] = {
+                            'word': word,
+                            'stage': f"Codigo de respuesta: {response.status_code}",
+                            'link': url,
+                        }
+                        self.__inform(f"({index}) {url} .- Codigo {response.status_code}")
+                        return
+
             except requests.exceptions.InvalidURL as ex:
                 words_urls[word] = {
-                    'word' : word,
-                    'stage' : f"Invalid URL",
-                    'link' : url
+                    'word': word,
+                    'stage': f"Invalid URL",
+                    'link': url
                 }
                 self.__inform(f"({index}) {word} .- Invalid URL")
                 return
-            
+
             counter += 1
-       
+
         words_urls[word] = {
-                    'title' : word,
-                    'stage' : 'No response from server',
-                    'link' : url
-                }
-        
+            'title': word,
+            'stage': 'No response from server',
+            'link': url
+        }
         self.__inform(f"({index}) {word} .- Tried 3 times, no response...")
             
     def __load_items_page(self,HTML_code:str):
-        '''
-        '''
+        """
+        Parses HTML code to extract relevant data.
+
+        ### Args:
+        * `HTML_code` (str): The HTML code to parse.
+
+        ### Returns:
+        * `dict`: A dictionary containing extracted data like items and links.
+        """
         soup = BeautifulSoup(HTML_code,'lxml')
         items = [item.get_text() for item in soup.find_all('span',{'class':'ui-search-search-result__quantity-results'})][0]
         grid = soup.find('ol')
@@ -95,67 +109,37 @@ class main:
             "links" : links
         }
     
-    def __load_words_into_URLs(self):
-        '''
-        '''
+    async def __load_words_into_URLs(self):
+        """
+        Fetches data for all words in the list using asyncio.
+
+        ### Returns:
+        * `dict`: A dictionary containing information for each word and URL.
+        """
         execution_time = time.time()
         base_url = "https://listado.mercadolibre.com.mx/celulares#D[A:celulares]"
         replacement = "celulares"
-        
-        self.words_urls, threads, loops = {}, [], []
 
-        # Requesting the urls in different threads
-        for index,word in enumerate(self.words_list):
+        self.words_urls = {}
+        tasks = []
+        for index, word in enumerate(self.words_list):
             self.words_urls[word] = False
+            url_2_check = base_url.replace(replacement, word.replace(' ', '-'))
+            tasks.append(self.__fetch_data(index, word, url_2_check, self.words_urls))
 
-            url_2_check = base_url.replace(replacement,word.replace(' ','-'))
-
-            new_loop = asyncio.new_event_loop()
-            loop_stopped_event = asyncio.Event()
-            thread = threading.Thread(target=start_loop, args=(new_loop, loop_stopped_event))
-            thread.start()
-            asyncio.run_coroutine_threadsafe(self.__fetch_data(index,word,url_2_check,self.words_urls), new_loop)
-            loops.append(new_loop)
-            threads.append(thread)
-
-        # Validating until all URLs are requested
-        while True:
-            pending = 0
-            for key in self.words_urls.keys():
-                if type(self.words_urls[key]) == bool: pending += 1
-            if pending > 0: time.sleep(0.5)
-            else: break
-
-        # Closing opened loops and threads.
-        for loop in loops:
-            loop.call_soon_threadsafe(loop.stop)
-        for thread in threads:
-            thread.join()
-        
-        self.__inform(f"({len(self.words_urls)}) URLS found...")
+        await asyncio.gather(*tasks)
         self.__inform(f"Execution time for validating all URL's: {time.time() - execution_time:.2f} seconds")
+        return self.words_urls
 
     # =============== PUBLIC METHODS ===============
     def get_words_into_URLs(self):
-        self.__load_words_into_URLs()
-        return self.words_urls
+        """
+        Fetches data for all words in the list using asyncio.
 
-def start_loop(loop:asyncio.AbstractEventLoop, loop_stopped_event:asyncio.Event):
-    """
-    Starts an asyncio event loop in a separate thread.
-
-    ### Args:
-    * `loop` (asyncio.AbstractEventLoop): The asyncio event loop to run.
-    * `loop_stopped_event` (asyncio.Event): An event to set when the loop is stopped.
-
-    ### Notes:
-    * Sets the provided loop as the current event loop.
-    * Runs the loop forever until it is externally stopped.
-    * Sets the loop_stopped_event once the loop stops running.
-    """
-    asyncio.set_event_loop(loop)
-    loop.run_forever()
-    loop_stopped_event.set()
+        ### Returns:
+        * `dict`: A dictionary containing information for each word and URL.
+        """
+        return asyncio.run(self.__load_words_into_URLs())
 
 
 # =============== DEBUGGING ===============
@@ -163,35 +147,42 @@ if __name__ == '__main__':
     os.system('cls')
     import pyperclip as pc
     
-    def generate_random_words(numero_resultados):
+    def generate_random_words(words_limit:int = 10):
         '''
+        Generates a list of random words and short sentences.
+
+        ### Args:
+        * `words_limit` (int,optional): The limit of words to generate.
+
+        ### Returns:
+        * `array` (list): The array with the random words and short sentences.
+
+        ### Notes:
+        * The words and the sentences were pre-selected, so they're not totally random.
         '''
-        # Listas de palabras
-        palabras = ["coche", "pantalon", "vestido", "tenis", "celular", "computadora", "libro", "juguete", "electrodoméstico", "mueble", "balón", "teclado", "cargador", 
-                    "botella", "aretes", "lentes", "funda", "reloj", "suéter"]
+        # Words list
+        words = ["camisa", "pantalon", "vestido", "tenis", "celular", "computadora", "libro", "juguete", "electrodoméstico", "mueble", "balón", "teclado", "cargador", "botella", "aretes", "lentes", "funda", "reloj", "suéter"]
 
-        # Lista de adjetivos
-        adjetivos = ["nuevo", "usado", "barato", "caro", "de buena calidad", "de marca", "original", "importado"]
+        # Adjectives list
+        adjectives = ["nuevo", "usado", "barato", "caro", "de buena calidad", "de marca", "original", "importado"]
 
-        # Lista para almacenar resultados
-        lista = []
-
-        for _ in range(numero_resultados):
-            tipo = random.choice(["palabra", "oracion"])
-            if tipo == "palabra":
-                resultado = random.choice(palabras)
+        # Results list
+        array = []
+        for _ in range(words_limit):
+            type_search = random.choice(["word", "sentence"])
+            if type_search == "word":
+                result = random.choice(words)
             else:
-                palabra = random.choice(palabras)
-                adjetivo = random.choice(adjetivos)
-                resultado = f"u{'na' if palabra[-1] == 'a' else 'n' } {palabra} {adjetivo}"
-            
-            lista.append(resultado)
+                word = random.choice(words)
+                adjective = random.choice(adjectives)
+                result = f"u{'na' if word[-1] == 'a' else 'n' } {word} {adjective}"
+            array.append(result)
         
-        return lista
+        return array
     
     
     test = main(
-        words_list = generate_random_words(15),
+        words_list = generate_random_words(),
         verbose = True,
         # daemon  = True
     )

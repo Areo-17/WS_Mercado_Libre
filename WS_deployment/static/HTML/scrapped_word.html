@@ -3,18 +3,12 @@
 
 
 {% block subtitulo %}
-<h2 style="text-align: center;font-weight: bold;">Data from Word(s)</h2>
+<h2 style="text-align: center;font-weight: bold;">Data from List of Words</h2>
 {% endblock %}
 
 
 
 {% block body %}
-
-<div id="miModal" class="modal">
-    <div class="modal-content">
-      <p>Cargando, por favor espera...</p>
-    </div>
-</div>
 
 <div class="grid-container">
     {% for key,word in words.items() %}
@@ -23,7 +17,7 @@
                 <a href="{{word.link}}"><h2>{{word.word}}</h2></a>
 
                 {% if "200" in word.stage %}
-                    <p>{{word.items_found}}</p>
+                    <p>{{word.links_found|length}} / {{word.items_found}}</p>
                 {% else %}
                     <p>{{word.stage}}</p>
                 {% endif %}
@@ -37,16 +31,4 @@
         </div>
     {% endfor %}
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function(event) { 
-        var submitButtons = document.querySelectorAll('form button[type="submit"]');
-    
-        submitButtons.forEach(function(button) {
-            button.addEventListener('click', function() {
-                document.getElementById('miModal').style.display = 'block';
-            });
-        });
-    });
-</script>
 {% endblock %}

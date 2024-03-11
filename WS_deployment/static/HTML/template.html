@@ -59,7 +59,27 @@
         <a href="/"><h1 style="color: black;text-align: center;">Scrapper</h1></a>
         <p>{% block subtitulo %}{% endblock %}</p>
     </header>
-    {% block body %}{% endblock %}
+
+    <div id="miModal" class="modal">
+        <div class="modal-content">
+          <p>Scrapping, please wait...</p>
+        </div>
+    </div>
+    
+    {% block body %}
+    {% endblock %}
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function(event) { 
+            var submitButtons = document.querySelectorAll('form button[type="submit"]');
+        
+            submitButtons.forEach(function(button) {
+                button.addEventListener('click', function() {
+                    document.getElementById('miModal').style.display = 'block';
+                });
+            });
+        });
+    </script>
 </body>
 
 
